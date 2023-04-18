@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container mt-4">
+    <div class="row">
+      <div class="col-md-12">
+        <h2>Inventory Detail</h2>
+        <hr>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <table class="table table-bordered">
+          <tbody>
+            <tr>
+              <th scope="row">Item Name:</th>
+              <td>{{ inventory.item_name }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Quantity:</th>
+              <td>{{ inventory.quantity }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Last Updated:</th>
+              <td>{{ inventory.last_updated }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <a class="btn btn-primary" href="{% url 'inventory_edit' inventory.id %}">Edit</a>
+        <a class="btn btn-danger" href="{% url 'inventory_delete' inventory.id %}">Delete</a>
+      </div>
+    </div>
+  </div>
+{% endblock %}
