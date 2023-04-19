@@ -7,4 +7,5 @@ urlpatterns = [
     path('new/', views.inventory_new, name='inventory_new'),
     path('<int:pk>/edit/', views.inventory_edit, name='inventory_edit'),
     path('<int:pk>/delete/', views.inventory_delete, name='inventory_delete'),
+    path('forecast/', views.inventory_forecast, name='inventory_forecast'),
 ]

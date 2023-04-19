@@ -8,6 +8,9 @@
         <th>Date</th>
         <th>Item Name</th>
         <th>Quantity</th>
+        <th>Used</th>
+        <th>Remaining</th>
+        
       </tr>
     </thead>
     <tbody>
@@ -16,6 +19,8 @@
         <td>{{ item.date }}</td>
         <td>{{ item.item_name }}</td>
         <td>{{ item.quantity }}</td>
+        <td>{{ item.quantity_used }}</td>
+        <td>{{ item.remaining_stock}}</td>
       </tr>
       {% endfor %}
     </tbody>
