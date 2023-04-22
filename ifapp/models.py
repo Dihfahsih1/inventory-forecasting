@@ -10,3 +10,9 @@ class Inventory(models.Model):
     
     def __str__(self):
         return f'{self.item_name} - {self.quantity} on {self.date}'
+    
+    def save(self, *args, **kwargs):
+        # Calculate remaining stock
+        self.remaining_stock = self.quantity - self.quantity_used
+        
+        super(Inventory, self).save(*args, **kwargs)

@@ -3,6 +3,7 @@ from .models import Inventory
 from .forms import InventoryForm
 from prophet import Prophet
 import pandas as pd
+from django.http import HttpResponse
 #import pdb; pdb.set_trace()
 
 from django.conf import settings
@@ -12,6 +13,7 @@ model = Prophet(
     daily_seasonality=settings.PROPHET_DAILY_SEASONALITY,
 )
 
+ 
 def inventory_forecast(request):
     # Load inventory data from the database
     inventory_queryset = Inventory.objects.all()
@@ -23,34 +25,36 @@ def inventory_forecast(request):
     inventory_data['date'] = pd.to_datetime(inventory_data['date'])
 
     # Rename columns to fit Prophet requirements
-    inventory_data = inventory_data.rename(columns={'date': 'ds', 'quantity': 'y'})
+    inventory_data = inventory_data.rename(columns={'date': 'ds', 'remaining_stock': 'y'})
 
     # Train the Prophet model
-    model = Prophet() 
+    model = Prophet(yearly_seasonality=False, daily_seasonality=False)
     try:
-        model.fit(inventory_data, mcmc_samples=1)
-        print(model)
+        model.fit(inventory_data)
     except Exception as e:
-        print("Error fitting model: ", e)
+        return HttpResponse(f"Error fitting model: {str(e)}")
 
     # Generate forecast data for the next 30 days
-    future = model.make_future_dataframe(periods=30)
+    future = model.make_future_dataframe(periods=10)
     forecast = model.predict(future)
 
     # Get the last 30 days of actual inventory data
     actual = inventory_data.tail(30)
 
-    # Combine forecast and actual data into a single dataframe
     forecast_data = forecast[['ds', 'yhat']].tail(30)
-    forecast_data = forecast_data.rename(columns={'ds': 'date', 'yhat': 'quantity'})
+    print(f"forecast_data: {forecast_data}")
+    forecast_data = forecast_data.rename(columns={'ds': 'date', 'yhat': 'remaining_stock'})
+    forecast_data = forecast_data[['date', 'remaining_stock']]
     forecast_data['date'] = pd.to_datetime(forecast_data['date'])
-
     actual_data = actual.rename(columns={'ds': 'date'})
 
+    forecast_data = forecast_data.dropna()
     inventory_data = pd.concat([actual_data, forecast_data], ignore_index=True)
 
     # Render the forecast page with the inventory data
-    return render(request, 'inventory_forecast.html', {'inventory_data': inventory_data})
+    return render(request, 'inventory_forecast.html', {'inventory_data': inventory_data.to_dict('records')})
+
+
 
 def inventory_list(request):
     inventory_items = Inventory.objects.all()
